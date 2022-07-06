@@ -22,8 +22,6 @@ const get_ovpn_urls = async function() {
 const get_ovpn = async function(url) {
 	let date = new Date();
 	console.log(url)
-	const [month, day, year]       = [date.getMonth(), date.getDay(), date.getFullYear()];
-	const [hour, minutes, seconds] = [date.getHours(), date.getMinutes(), date.getSeconds()];
 	const ress = await axios.get(
 				`${url}`,
 				{
