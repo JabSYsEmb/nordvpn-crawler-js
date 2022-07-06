@@ -9,11 +9,11 @@ const get_ovpn_urls = async function() {
 	res => 
 		{
 		var doc = new jsdom.JSDOM(res.data, "text/xml");
-			console.log(doc.window.document.querySelectorAll("body > div.Article > div > div > div > div > div > ul > li  > div > div > div > a").forEach(item => 
+			doc.window.document.querySelectorAll("body > div.Article > div > div > div > div > div > ul > li  > div > div > div > a").forEach(item => 
 				{
 					get_ovpn(item.href)
 				}
-			))
+			)
 		}
 	).catch(err => console.log(err))
 }
