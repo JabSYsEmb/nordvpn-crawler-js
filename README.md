@@ -1,5 +1,6 @@
 # Nordvpn-crawler-js
 
 ```bash
-mkdir data && npm install && npm start
+npm install && npm start
+cd data && ./script.py
 ```
