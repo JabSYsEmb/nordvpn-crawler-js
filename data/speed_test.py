@@ -26,22 +26,30 @@ def speedtest_ovpn(path):
             speedtest_ovpn(path + "/" + directory.name)
             continue
         elif(directory.is_file() & (directory.name[-5:] == ".ovpn") ):
-            process = subprocess.Popen(
+            process = subprocess.Popen
+            (
                 [  
-                    'openvpn', '--config' , str(path+"/"+directory.name), '--auth-nocache', '--auth-user-pass', './auth.txt' 
-                ]
-                , stdout = subprocess.DEVNULL
-                , stderr = subprocess.DEVNULL
-                , restore_signals = False)
+                    'openvpn',
+                    '--config',
+                    str(path+"/"+directory.name),
+                    '--auth-nocache',
+                    '--auth-user-pass',
+                    './auth.txt' 
+                ],
+                stdout = subprocess.DEVNULL,
+                stderr = subprocess.DEVNULL,
+                restore_signals = False,
+                preexec_fn=os.setsid
+            )
             try:
                 download_speed = st.download()
                 os.system("./myip.sh")
                 sys.stdout.write(" - {} : {} \n".format(directory.name, humansize(download_speed)))
                 time.sleep(10)
-                process.kill()
             except subprocess.TimeoutExpired:
                 print('Timed out - killing', process.pid)
-                process.kill()
+            finally:
+                os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
         else:
             sys.stdout.write("We are {}... \n".format(directory))
             time.sleep(1)
