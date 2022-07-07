@@ -17,6 +17,8 @@ def humansize(nbytes):
     f = ('%.2f' % nbytes).rstrip('0').rstrip('.')
     return '%s %s' % (f, suffixes[i])
 
+# openvpn --config $1 --auth-nocache --auth-user-pass $2
+
 def speedtest_ovpn(path):
     st = speedtest.Speedtest()
     for directory in os.scandir(path):
@@ -24,29 +26,29 @@ def speedtest_ovpn(path):
             speedtest_ovpn(path + "/" + directory.name)
             continue
         elif(directory.is_file() & (directory.name[-5:] == ".ovpn") ):
-            process = subprocess.Popen(['./script.sh',  str(path+"/"+directory.name), './auth.txt'])
-            time.sleep(1)
+            process = subprocess.Popen(
+                [  
+                    'openvpn', '--config' , str(path+"/"+directory.name), '--auth-nocache', '--auth-user-pass', './auth.txt' 
+                ]
+                , stdout = subprocess.DEVNULL
+                , stderr = subprocess.DEVNULL
+                , restore_signals = False)
             try:
-                print('Running in process', process.pid)
                 download_speed = st.download()
-                sys.stdout.write("{} : {} \n".format(directory.name, humansize(download_speed)))
-                os.system("curl https://ipinfo.io/json")
-                sys.stdout.write("kill {}\n".format(process.pid))
-                os.system("kill {}".format(process.pid))
-                time.sleep(2)
-                sys.stdout.write("Processed is called\n")
-                os.system("curl https://ipinfo.io/json")
-                process.communicate(timeout=20)
+                os.system("./myip.sh")
+                sys.stdout.write(" - {} : {} \n".format(directory.name, humansize(download_speed)))
+                time.sleep(10)
+                process.kill()
             except subprocess.TimeoutExpired:
                 print('Timed out - killing', process.pid)
                 process.kill()
-            break
         else:
             sys.stdout.write("We are {}... \n".format(directory))
             time.sleep(1)
 
 def main():
-    speedtest_ovpn(".")
+    path = sys.argv[1]
+    speedtest_ovpn(path)
 
 if __name__ == "__main__":
     main()
