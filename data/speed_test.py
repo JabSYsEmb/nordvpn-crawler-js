@@ -26,8 +26,7 @@ def speedtest_ovpn(path):
             speedtest_ovpn(path + "/" + directory.name)
             continue
         elif(directory.is_file() & (directory.name[-5:] == ".ovpn") ):
-            process = subprocess.Popen
-            (
+            process = subprocess.Popen(
                 [  
                     'openvpn',
                     '--config',
@@ -39,19 +38,18 @@ def speedtest_ovpn(path):
                 stdout = subprocess.DEVNULL,
                 stderr = subprocess.DEVNULL,
                 restore_signals = False,
-                preexec_fn=os.setsid
+                preexec_fn = os.setsid
             )
             try:
                 download_speed = st.download()
-                os.system("./myip.sh")
-                sys.stdout.write(" - {} : {} \n".format(directory.name, humansize(download_speed)))
-                time.sleep(10)
-            except subprocess.TimeoutExpired:
+                subprocess.run( ["./myip.sh", directory.name, humansize(download_speed)] )
+                time.sleep(2)
+            except ( subprocess.SubprocessError, subprocess.CalledProcessError ) as subprocessError:
+                print(subprocessError)
                 print('Timed out - killing', process.pid)
             finally:
-                os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
+                os.kill(process.pid, signal.SIGTERM)  # Send the signal to all the process groups
         else:
-            sys.stdout.write("We are {}... \n".format(directory))
             time.sleep(1)
 
 def main():
