@@ -38,7 +38,6 @@ def speedtest_ovpn(path):
                 stdout = subprocess.DEVNULL,
                 stderr = subprocess.DEVNULL,
                 restore_signals = False,
-                preexec_fn = os.setsid
             )
             try:
                 download_speed = st.download()
